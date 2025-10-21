@@ -7,7 +7,7 @@ app = FastAPI()
 urls: dict[str, str] = dict()
 
 
-@app.get("/create")
+@app.post("/shorten")
 def create(url: str):
     if url is None or url is False:
         return {"error": "Parameter URL not sent."}
@@ -17,7 +17,7 @@ def create(url: str):
     return {"short-url": short_url}
 
 
-@app.get("/access/{short_url}")
+@app.get("/{short_url}")
 def access(short_url: str):
     for k, v in urls.items():
         if k == short_url:
