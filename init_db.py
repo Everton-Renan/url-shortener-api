@@ -17,8 +17,8 @@ Base = declarative_base()
 class Urls(Base):
     __tablename__ = "urls"
     id = Column(Integer, primary_key=True, index=True)
-    short_url = Column(String(5), unique=True, nullable=False)
-    original = Column(String(2048), nullable=False)
+    short_url = Column(String(6), unique=True, nullable=False)
+    original_url = Column(String(2048), nullable=False)
     clicks = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
