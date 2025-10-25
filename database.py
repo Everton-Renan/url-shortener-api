@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.session import sessionmaker
 
@@ -8,30 +8,62 @@ from init_db import Urls, engine
 
 def create_url(original_url: str):
     Session = sessionmaker(bind=engine)
-    session = Session()
-    try:
-        short_url = generate_url(4)
-        url = Urls(original_url=original_url, short_url=short_url)
-        session.add(url)
-        session.commit()
-    except IntegrityError as e:
-        session.rollback()
-        return f"IntegrityError: {e}"
-    except SQLAlchemyError as e:
-        session.rollback()
-        return f"Database error: {e}"
-    finally:
-        session.close()
 
-    return short_url
+    with Session() as session:
+        try:
+            short_url = generate_url(4)
+            url = Urls(original_url=original_url, short_url=short_url)
+            session.add(url)
+            session.commit()
+
+            return short_url
+
+        except IntegrityError as e:
+            session.rollback()
+            return f"IntegrityError: {e}"
+        except SQLAlchemyError as e:
+            session.rollback()
+            return f"Database error: {e}"
 
 
 def get_url(short_url: str):
     Session = sessionmaker(bind=engine)
-    session = Session()
+    try:
+        with Session() as session:
+            query = select(Urls.original_url).where(Urls.short_url == short_url)
+            url = session.scalars(query).first()
+    except IntegrityError as e:
+        return f"IntegrityError: {e}"
+    except SQLAlchemyError as e:
+        return f"Database error: {e}"
 
-    query = select(Urls).where(Urls.short_url == short_url)
-    url = session.scalars(query).first()
     if url is not None:
-        return url.original_url
+        return url
     return None
+
+
+def update_clicks(short_url: str, clicks: int):
+    Session = sessionmaker(bind=engine)
+
+    with Session() as session:
+        try:
+            select_clicks = select(Urls.clicks).where(Urls.short_url == short_url)
+            result_click = session.scalars(select_clicks).first()
+            if result_click is None:
+                return None
+
+            query = (
+                update(Urls)
+                .where(Urls.short_url == short_url)
+                .values(clicks=(clicks + result_click))
+            )
+
+            session.execute(query)
+            session.commit()
+
+        except IntegrityError as e:
+            session.rollback()
+            return f"IntegrityError: {e}"
+        except SQLAlchemyError as e:
+            session.rollback()
+            return f"Database error: {e}"
