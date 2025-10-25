@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 
-from database import create_url, get_url
+from database import create_url, get_url, update_clicks
 
 app = FastAPI()
 
@@ -23,5 +23,6 @@ def create(url: str):
 def access(short_url: str):
     original_url = get_url(short_url)
     if original_url is not None:
+        update_clicks(short_url, 1)
         return RedirectResponse(str(original_url))
     return {"error": "Url not found."}
