@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
-from database import create_url, get_url, update_clicks
-from datetime import datetime
+
+from database import create_url, get_url, get_urls, update_clicks
+
 app = FastAPI()
 
 
@@ -18,7 +22,7 @@ def create(url: str):
     return {"short-url": result}
 
 
-@app.get("/{short_url}")
+@app.get("/create/{short_url}")
 def access(short_url: str):
     url = get_url(short_url)
 
@@ -31,3 +35,12 @@ def access(short_url: str):
             update_clicks(short_url, 1)
             return RedirectResponse(str(original_url))
     return {"error": "Url not found."}
+
+
+@app.get("/urls")
+def urls():
+    urls = get_urls()
+    if urls is not None:
+        json_urls = jsonable_encoder(urls)
+        return json_urls
+    return {"error": "URLs not found."}
