@@ -1,8 +1,8 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from dotenv import load_dotenv
-from sqlalchemy import Column, DateTime, Integer, String, create_engine
+from sqlalchemy import Column, DateTime, Integer, String, create_engine, Boolean
 from sqlalchemy.orm import declarative_base
 
 load_dotenv()
@@ -21,6 +21,7 @@ class Urls(Base):
     original_url = Column(String(2048), nullable=False)
     clicks = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    expires_at = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7))
 
 
 if __name__ == "__main__":
