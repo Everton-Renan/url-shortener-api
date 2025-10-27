@@ -30,8 +30,10 @@ def get_url(short_url: str):
     Session = sessionmaker(bind=engine)
     try:
         with Session() as session:
-            query = select(Urls.original_url).where(Urls.short_url == short_url)
-            url = session.scalars(query).first()
+            query = select(Urls.original_url, Urls.expires_at).where(
+                Urls.short_url == short_url
+            )
+            url = session.execute(query).first()
     except IntegrityError as e:
         return f"IntegrityError: {e}"
     except SQLAlchemyError as e:
