@@ -44,6 +44,22 @@ def get_url(short_url: str):
     return None
 
 
+def get_urls():
+    Session = sessionmaker(bind=engine)
+    try:
+        with Session() as session:
+            query = select(Urls).where()
+            urls = session.scalars(query).all()
+    except IntegrityError as e:
+        return f"IntegrityError: {e}"
+    except SQLAlchemyError as e:
+        return f"Database error: {e}"
+
+    if urls is not None:
+        return urls
+    return None
+
+
 def update_clicks(short_url: str, clicks: int):
     Session = sessionmaker(bind=engine)
 
