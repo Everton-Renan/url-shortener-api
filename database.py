@@ -18,12 +18,12 @@ def create_url(original_url: str):
 
             return short_url
 
-        except IntegrityError as e:
+        except IntegrityError:
             session.rollback()
-            return f"IntegrityError: {e}"
-        except SQLAlchemyError as e:
+            return Exception()
+        except SQLAlchemyError:
             session.rollback()
-            return f"Database error: {e}"
+            return Exception()
 
 
 def get_url(short_url: str):
@@ -34,10 +34,10 @@ def get_url(short_url: str):
                 Urls.short_url == short_url
             )
             url = session.execute(query).first()
-    except IntegrityError as e:
-        return f"IntegrityError: {e}"
-    except SQLAlchemyError as e:
-        return f"Database error: {e}"
+    except IntegrityError:
+        return Exception()
+    except SQLAlchemyError:
+        return Exception()
 
     if url is not None:
         return url
@@ -48,12 +48,12 @@ def get_urls():
     Session = sessionmaker(bind=engine)
     try:
         with Session() as session:
-            query = select(Urls).where()
+            query = select(Urls)
             urls = session.scalars(query).all()
-    except IntegrityError as e:
-        return f"IntegrityError: {e}"
-    except SQLAlchemyError as e:
-        return f"Database error: {e}"
+    except IntegrityError:
+        return Exception()
+    except SQLAlchemyError:
+        return Exception()
 
     if urls is not None:
         return urls
@@ -79,9 +79,9 @@ def update_clicks(short_url: str, clicks: int):
             session.execute(query)
             session.commit()
 
-        except IntegrityError as e:
+        except IntegrityError:
             session.rollback()
-            return f"IntegrityError: {e}"
-        except SQLAlchemyError as e:
+            return Exception()
+        except SQLAlchemyError:
             session.rollback()
-            return f"Database error: {e}"
+            return Exception()
