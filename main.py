@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 
-from database import create_url, get_url, get_urls, update_clicks
+from database import create_url, get_url, get_urls, update_clicks, delete_expired_urls
 
 app = FastAPI()
 
@@ -43,6 +43,8 @@ def access(short_url: str):
         if date < expires_at:
             update_clicks(short_url, 1)
             return RedirectResponse(str(original_url), 302)
+
+    delete_expired_urls(short_url)
     return JSONResponse({"error": "Url not found."}, 404)
 
 
