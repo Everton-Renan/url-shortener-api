@@ -85,3 +85,20 @@ def update_clicks(short_url: str, clicks: int):
         except SQLAlchemyError:
             session.rollback()
             return Exception()
+
+
+def delete_expired_urls(short_url: str):
+    Session = sessionmaker(bind=engine)
+
+    with Session() as session:
+        try:
+            delete_query = Urls.__table__.delete().where(Urls.short_url == short_url)
+            session.execute(delete_query)
+            session.commit()
+
+        except IntegrityError:
+            session.rollback()
+            return Exception()
+        except SQLAlchemyError:
+            session.rollback()
+            return Exception()
