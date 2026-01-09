@@ -38,7 +38,7 @@ def access(short_url: str):
 
         date = datetime.now()
         original_url = url[0]
-        expires_at = datetime.strptime(str(url[1]), "%Y-%m-%d %H:%M:%S.%f")
+        expires_at = datetime.strptime(str(url[1]), "%Y-%m-%d %H:%M:%S")
 
         if date < expires_at:
             update_clicks(short_url, 1)
