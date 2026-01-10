@@ -14,6 +14,8 @@ app = FastAPI()
 def create(url: str):
     if not url:
         raise HTTPException(status_code=400, detail="Parameter URL not sent.")
+    if not (url.startswith("http://") or url.startswith("https://")):
+        raise HTTPException(status_code=400, detail="URL is not valid, URL must start with http:// or https:// .")
 
     result = create_url(url)
 
